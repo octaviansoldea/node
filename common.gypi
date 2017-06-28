@@ -117,7 +117,7 @@
         'variables': {
           'v8_enable_handle_zapping': 0,
         },
-        'cflags': [ '-O3' ],
+        'cflags': [ '-g', '-O3' ],
         'conditions': [
           ['target_arch=="x64"', {
             'msvs_configuration_platform': 'x64',

@@ -25,6 +25,11 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <sys/epoll.h>
+#include <sys/eventfd.h>
+#include <fcntl.h>
+#define _GNU_SOURCE
+#include <sys/socket.h>
 
 #if defined(__has_feature)
 # if __has_feature(memory_sanitizer)
@@ -260,7 +265,10 @@ int uv__accept4(int fd, struct sockaddr* addr, socklen_t* addrlen, int flags) {
 
   return r;
 #elif defined(__NR_accept4)
-  return syscall(__NR_accept4, fd, addr, addrlen, flags);
+  int nRes;
+  nRes = accept4(fd, addr, addrlen, flags);
+  /*return syscall(__NR_accept4, fd, addr, addrlen, flags);*/
+  return(nRes);
 #else
   return errno = ENOSYS, -1;
 #endif
@@ -269,7 +277,10 @@ int uv__accept4(int fd, struct sockaddr* addr, socklen_t* addrlen, int flags) {
 
 int uv__eventfd(unsigned int count) {
 #if defined(__NR_eventfd)
-  return syscall(__NR_eventfd, count);
+  int nRes;
+  /*return syscall(__NR_eventfd, count);*/
+  nRes = eventfd(count, EFD_CLOEXEC | EFD_NONBLOCK);
+  return(nRes);
 #else
   return errno = ENOSYS, -1;
 #endif
@@ -278,7 +289,10 @@ int uv__eventfd(unsigned int count) {
 
 int uv__eventfd2(unsigned int count, int flags) {
 #if defined(__NR_eventfd2)
-  return syscall(__NR_eventfd2, count, flags);
+  int nRes;
+  /*return syscall(__NR_eventfd2, count, flags);*/
+  nRes = eventfd(count, flags);
+  return(nRes);
 #else
   return errno = ENOSYS, -1;
 #endif
@@ -287,7 +301,10 @@ int uv__eventfd2(unsigned int count, int flags) {
 
 int uv__epoll_create(int size) {
 #if defined(__NR_epoll_create)
-  return syscall(__NR_epoll_create, size);
+  int nRes;
+  /*return syscall(__NR_epoll_create, size);*/
+  nRes = epoll_create(size);
+  return(nRes);
 #else
   return errno = ENOSYS, -1;
 #endif
@@ -296,7 +313,10 @@ int uv__epoll_create(int size) {
 
 int uv__epoll_create1(int flags) {
 #if defined(__NR_epoll_create1)
-  return syscall(__NR_epoll_create1, flags);
+  int nRes;
+  /*return syscall(__NR_epoll_create1, flags);*/
+  nRes = epoll_create1(flags);
+  return(nRes);
 #else
   return errno = ENOSYS, -1;
 #endif
@@ -305,7 +325,10 @@ int uv__epoll_create1(int flags) {
 
 int uv__epoll_ctl(int epfd, int op, int fd, struct uv__epoll_event* events) {
 #if defined(__NR_epoll_ctl)
-  return syscall(__NR_epoll_ctl, epfd, op, fd, events);
+  int nRes;
+  /*return syscall(__NR_epoll_ctl, epfd, op, fd, events);*/
+  nRes = epoll_ctl(epfd, op, fd, (struct epoll_event *)events);
+  return(nRes);
 #else
   return errno = ENOSYS, -1;
 #endif
@@ -318,7 +341,8 @@ int uv__epoll_wait(int epfd,
                    int timeout) {
 #if defined(__NR_epoll_wait)
   int result;
-  result = syscall(__NR_epoll_wait, epfd, events, nevents, timeout);
+  /*result = syscall(__NR_epoll_wait, epfd, events, nevents, timeout);*/
+  result = epoll_wait(epfd, (struct epoll_event *)events, nevents, timeout);
 #if MSAN_ACTIVE
   if (result > 0)
     __msan_unpoison(events, sizeof(events[0]) * result);
@@ -394,7 +418,8 @@ int uv__inotify_rm_watch(int fd, int32_t wd) {
 int uv__pipe2(int pipefd[2], int flags) {
 #if defined(__NR_pipe2)
   int result;
-  result = syscall(__NR_pipe2, pipefd, flags);
+  /*result = syscall(__NR_pipe2, pipefd, flags);*/
+  result = pipe2(pipefd, flags);
 #if MSAN_ACTIVE
   if (!result)
     __msan_unpoison(pipefd, sizeof(int[2]));
@@ -411,7 +436,10 @@ int uv__sendmmsg(int fd,
                  unsigned int vlen,
                  unsigned int flags) {
 #if defined(__NR_sendmmsg)
-  return syscall(__NR_sendmmsg, fd, mmsg, vlen, flags);
+  int nRes;
+  /*return syscall(__NR_sendmmsg, fd, mmsg, vlen, flags);*/
+  nRes = sendmmsg(fd, (struct mmsghdr*)mmsg, vlen, flags);
+  return(nRes);
 #else
   return errno = ENOSYS, -1;
 #endif
@@ -424,7 +452,10 @@ int uv__recvmmsg(int fd,
                  unsigned int flags,
                  struct timespec* timeout) {
 #if defined(__NR_recvmmsg)
-  return syscall(__NR_recvmmsg, fd, mmsg, vlen, flags, timeout);
+  int nRes;
+  /*return syscall(__NR_recvmmsg, fd, mmsg, vlen, flags, timeout);*/
+  nRes = recvmmsg(fd, (struct mmsghdr*)mmsg, vlen, flags, timeout);
+  return(nRes);
 #else
   return errno = ENOSYS, -1;
 #endif
