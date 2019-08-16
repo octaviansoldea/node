@@ -52,6 +52,28 @@ static napi_value TestCreateFunctionParameters(napi_env env,
   return return_value;
 }
 
+static napi_value TestNAPIPREAMBLE(napi_env env,
+                                   napi_callback_info info) {
+  napi_value error, message, result, return_value;
+  NAPI_CALL(env, napi_create_string_utf8(
+      env, "existing error", NAPI_AUTO_LENGTH, &message));
+  NAPI_CALL(env, napi_create_error(env, NULL,  message, &error));
+  NAPI_CALL(env, napi_throw(env, error));
+
+  NAPI_CALL(env, napi_create_object(env, &return_value));
+
+  napi_create_function(env,
+                       "TestNAPIPREAMBLE",
+                       NAPI_AUTO_LENGTH,
+                       TestCreateFunctionParameters,
+                       NULL,
+                       &result);
+
+  add_last_status(env, "TestNAPIPREAMBLE", return_value);
+
+  return return_value;
+}
+
 static napi_value TestCallFunction(napi_env env, napi_callback_info info) {
   size_t argc = 10;
   napi_value args[10];
@@ -195,6 +217,15 @@ napi_value Init(napi_env env, napi_value exports) {
                                          exports,
                                          "TestCreateFunctionParameters",
                                          fn5));
+
+  napi_value fn6;
+  NAPI_CALL(env, napi_create_function(env,
+                                      "TestNAPIPREAMBLE",
+                                      NAPI_AUTO_LENGTH,
+                                      TestNAPIPREAMBLE,
+                                      NULL,
+                                      &fn6));
+  NAPI_CALL(env, napi_set_named_property(env, exports, "TestNAPIPREAMBLE", fn6));
 
   return exports;
 }

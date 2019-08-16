@@ -42,3 +42,7 @@ assert.deepStrictEqual(test_function.TestCreateFunctionParameters(), {
   cbIsNull: 'Invalid argument',
   resultIsNull: 'Invalid argument'
 });
+
+assert.deepStrictEqual(test_function.TestNAPIPREAMBLE(), {
+  TestNAPIPREAMBLE: 'napi_pending_exception',
+});
